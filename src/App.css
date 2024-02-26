@@ -1,38 +1,66 @@
-.App {
+.container {
+  margin-top: 100px;
+  font-family: Barlow;
+}
+
+.todo h1 {
+  font-size: 100px;
+  color: darkgray;
+}
+
+.todolistcard ul {
+  padding: 0; 
+  margin-bottom: 0;
+}
+
+.container {
+  background-color: aliceblue;
+  box-shadow: grey 5px 5px 10px 0px;;
+  box-shadow:
+  /* The top layer shadow */
+  0 1px 1px rgba(0,0,0,0.15),
+  /* The second layer */
+  0 10px 0 -5px #eee,
+  /* The second layer shadow */
+  0 10px 1px -4px rgba(0,0,0,0.15),
+   /* The third layer */
+  0 20px 0 -10px #eee,
+  /* The third layer shadow */
+  0 20px 1px -9px rgba(0,0,0,0.15);
+
+}
+
+ul li {
+  border: 1px solid grey; 
+  list-style: none;
+  padding: 8px;
+}
+
+.li_css {
+  display: flex;
+  justify-content: space-between;
+}
+
+.li_css .fa-x {
+  display: none;
+}
+
+.li_css:hover .fa-x {
+  display: block;
+  cursor: pointer;
+  color:gray;
+}
+
+h1 {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#tasks_left {
+  color: darkgray;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+input {
+  border: none;
+  width: 100%;
+  margin: 0%;
 }
