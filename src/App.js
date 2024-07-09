@@ -4,26 +4,51 @@ import './App.css';
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [todoList, setTodoList] = useState([]);
+  const [userCreated, setUserCreated] = useState(false); 
 
-  function obtenerTareas() {
-    fetch("https://playground.4geeks.com/todo/users/Daniel", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" }
-    })
-    .then(response => {
+  useEffect(() => {
+    function crearUsuario() {
+      if (!userCreated) {
+        fetch("https://playground.4geeks.com/todo/users/Daniel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to create user");
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log("User created successfully");
+          setUserCreated(true);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      }
+    }
+
+    function obtenerTareas() {
+      fetch("https://playground.4geeks.com/todo/users/Daniel", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch todo list');
         }
         return response.json();
       })
-    .then(data => setTodoList(Array.isArray(data)? data : []))
-    .catch(error => console.error(error));
-  }
-  
+      .then(data => setTodoList(Array.isArray(data) ? data : []))
+      .catch(error => console.error(error));
+    }
 
-  useEffect(() => {
     obtenerTareas();
-  }, [])
+    crearUsuario();
+  }, [userCreated]); 
+
 
   function agregarTareas() {
     if (inputValue.trim()!== "") {
