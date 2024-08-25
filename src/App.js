@@ -1,100 +1,118 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './App.css';
 
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [todoList, setTodoList] = useState([]);
-  const [userCreated, setUserCreated] = useState(false); 
+
+  const crearUsuario = useCallback(() => {
+    fetch("https://playground.4geeks.com/todo/users/Daniel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Failed to create user");
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data, "User created successfully");
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, []);
+
+  const verificarUsuarioYCrear = useCallback(() => {
+    fetch("https://playground.4geeks.com/todo/users/Daniel", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(response => {
+        if (response.status === 404) {
+          crearUsuario();
+        } else if (!response.ok) {
+          throw new Error('Failed to fetch user');
+        }
+        return response.json();
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, [crearUsuario]);
 
   useEffect(() => {
-    function crearUsuario() {
-      if (!userCreated) {
-        fetch("https://playground.4geeks.com/todo/users/Daniel", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error("Failed to create user");
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log("User created successfully");
-          setUserCreated(true);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-      }
-    }
+    verificarUsuarioYCrear();
+  }, [verificarUsuarioYCrear]);
 
-    function obtenerTareas() {
-      fetch("https://playground.4geeks.com/todo/users/Daniel", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      })
+  function obtenerTareas() {
+    fetch("https://playground.4geeks.com/todo/users/Daniel", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" }
+    })
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch todo list');
         }
         return response.json();
       })
-      .then(data => setTodoList(Array.isArray(data) ? data : []))
+      .then(data => {
+        if (data && Array.isArray(data.todos)) {
+          setTodoList(data.todos); 
+        }
+      })
       .catch(error => console.error(error));
-    }
+  }
 
+  useEffect(() => {
     obtenerTareas();
-    crearUsuario();
-  }, [userCreated]); 
-
+  }, []);
 
   function agregarTareas() {
-    if (inputValue.trim()!== "") {
+    if (inputValue.trim() !== "") {
       fetch("https://playground.4geeks.com/todo/todos/Daniel", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ label: inputValue, is_done: false }),
       })
-     .then(response => {
+        .then(response => {
           if (!response.ok) {
             throw new Error('Failed to add todo');
           }
           return response.json();
         })
-     .then(data => {
+        .then(data => {
           setTodoList([...todoList, data]);
           setInputValue("");
         })
-     .catch(error => {
+        .catch(error => {
           console.error(error);
         });
     }
   }
-  
 
   function quitarTarea(index) {
-    const todoListActualizada = todoList.filter((elemento, indice)=>indice!== index);
-    
-  
+    const todoListActualizada = todoList.filter((elemento, indice) => indice !== index);
+
     fetch("https://playground.4geeks.com/todo/todos/" + todoList[index].id, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(todoListActualizada.length > 0? todoListActualizada:[{label:"example task", is_done:false}]),
+      body: JSON.stringify(todoListActualizada.length > 0 ? todoListActualizada : [{ label: "example task", is_done: false }]),
     })
-   .then(response => {
+      .then(response => {
         if (!response.ok) {
           throw new Error('Failed to modify todo');
         }
-        return response.text(); 
+        return response.text();
       })
-   .then(data => {
-        console.log(data); 
+      .then(data => {
+        console.log(data);
         setTodoList(todoListActualizada);
       })
-   .catch(error => {
-        console.error(error); 
+      .catch(error => {
+        console.error(error);
       });
   }
 
@@ -132,12 +150,11 @@ function App() {
               onChange={(e) => setInputValue(e.target.value)}
               value={inputValue}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && inputValue.trim()!== "") {
+                if (event.key === "Enter" && inputValue.trim() !== "") {
                   event.preventDefault();
                   agregarTareas(inputValue);
                 }
               }}
-              
             ></input>
           </li>
           {Array.isArray(todoList) && todoList.map((todoItem, index) => (
